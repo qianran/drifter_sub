@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr  2 10:31:13 2019
+
+@author: zqr02
+"""
+import matplotlib.pyplot as plt
+import netCDF4 as nc
+from datetime import datetime, timedelta
+import pandas as pd
+import numpy as np
+import csv
+import scipy.io
+import os
+from mpl_toolkits.basemap import Basemap
+import re
+import time
+from ftplib import FTP
+
+
+drifter_url="E:\\data\\drifter\\v1.02\\driftertrajWMLE_1.02_block4.nc"
+drifter_nc_obj=nc.Dataset(drifter_url)#读取drifter的数据
+drifter_lon=drifter_nc_obj.variables['LON'][:]
+drifter_lat=drifter_nc_obj.variables['LAT'][:]
+drifter_time=drifter_nc_obj.variables['TIME'][:]
+drifter_id=drifter_nc_obj.variables['ID'][:]
+plt.plot(drifter_lon,drifter_lat,'.')
+dmap = Basemap(projection='cyl',
+               llcrnrlat=-80, llcrnrlon=0,
+               urcrnrlat=80, urcrnrlon=360,
+               resolution='l')
+dmap.fillcontinents(color='grey')
+
+plt.savefig('E:\\Python\\drifter_sub\\figure\\show data_4.png',dpi=500)
+plt.show()
+lat_num=[]
+lon_num=[]
+lat=[]
+lon=[]
+num=np.zeros((37,73))
+for i in range(73):
+    lat.append(5*i)
+for i in range(37):
+    lon.append(-5*i+90)
+for i_index in range (0,len(drifter_lat)):
+    if np.isnan(drifter_lat[i_index]) or drifter_lat[i_index]==np.inf:
+        i_index=i_index+1
+    else:
+        lat_index=int(-drifter_lat[i_index]//5)+18
+        lon_index=int(drifter_lon[i_index]//5)
+        lat_num.append(lat_index)
+        lon_num.append(lon_index)
+        #num[lat_num[lat_index],lon_num[lon_index]]=num[lat_num[lat_index],lon_num[lon_index]]+1
+for i_num in range(len(lat_num)):
+    
+    num[lat_num[i_num],lon_num[i_num]]=num[lat_num[i_num],lon_num[i_num]]+1
+  
+x=lat
+y=lon
+X, Y = np.meshgrid(x, y)
+cm = plt.cm.get_cmap('afmhot_r')
+plt.contourf(X, Y, num, 8, alpha = 0.75, cmap = cm)
+plt.colorbar()
+dmap.fillcontinents(color='grey')
+plt.savefig('E:\\Python\\drifter_sub\\figure\\data_num_4.png',dpi=500)
+plt.show()    
+
+    
+    
+    
+    
+    
+    
